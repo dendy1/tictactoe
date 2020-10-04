@@ -1,35 +1,36 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class Cell : MonoBehaviour, IPointerClickHandler
+public class Cell : MonoBehaviour
 {
     [SerializeField] private GameObject crossObject;
     [SerializeField] private GameObject noughtObject;
 
-    private State _currentState;
+    private CellState _currentCellState;
     private Action<Cell> _onCellClicked;
+
+    private Camera _camera;
         
     public int Row { get; private set; }
     public int Col { get; private set; }
-    public State CellState
+    public CellState CellState
     {
-        get => _currentState;
+        get => _currentCellState;
         set
         {
-            _currentState = value;
+            _currentCellState = value;
             
             switch (value)
             {
-                case State.Cross:
+                case CellState.Cross:
                     noughtObject.SetActive(false);
                     crossObject.SetActive(true);
                     break;
-                case State.Nought:
+                case CellState.Nought:
                     noughtObject.SetActive(true);
                     crossObject.SetActive(false);
                     break;
-                case State.Empty:
+                case CellState.Empty:
                     noughtObject.SetActive(false);
                     crossObject.SetActive(false);
                     break;
@@ -41,22 +42,34 @@ public class Cell : MonoBehaviour, IPointerClickHandler
     {
         Row = row;
         Col = col;
-        CellState = State.Empty;
+        CellState = CellState.Empty;
         
-        name = $"Cell [{row}, {col}]";
+        name = $"Cell[{row}, {col}]";
 
         _onCellClicked = onCellClicked;
     }
-
-    public void OnPointerClick(PointerEventData eventData)
+    
+    
+    private void Awake()
     {
-        Debug.Log($"Cell [{Row}, {Col}] clicked");
-        _onCellClicked?.Invoke(this);
+        _camera = Camera.main;
     }
     
-    public void OnMouseDown()
+    private void OnMouseDown()
     {
-        Debug.Log($"Cell [{Row}, {Col}] clicked");
         _onCellClicked?.Invoke(this);
+    }
+
+    private void Update()
+    {
+        if (Input.touchCount > 0)
+        {
+            var ray = Camera.allCameras[0].ScreenPointToRay(Input.GetTouch(0).position);
+            
+            if (Physics.Raycast(ray, out var hit))
+            {
+                hit.transform.gameObject.SendMessage("OnMouseDown");
+            }
+        }
     }
 }
