@@ -11,15 +11,17 @@
           </e>
         </e>
         <e p="Scripts" t="Include">
+          <e p="AI.cs" t="Include" />
           <e p="Board.cs" t="Include" />
           <e p="Cell.cs" t="Include" />
           <e p="CellState.cs" t="Include" />
           <e p="GameLogic.cs" t="Include" />
-          <e p="GameManager.cs" t="Include" />
           <e p="GameState.cs" t="Include" />
-          <e p="Player.cs" t="Include" />
+          <e p="LookAtCamera.cs" t="Include" />
+          <e p="PlayerController.cs" t="Include" />
           <e p="PlayerType.cs" t="Include" />
           <e p="SettingsController.cs" t="Include" />
+          <e p="XOController.cs" t="Include" />
         </e>
         <e p="StreamingAssets" t="Include">
           <e p="Vuforia" t="Include">

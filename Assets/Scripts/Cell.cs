@@ -3,14 +3,16 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
-    [SerializeField] private GameObject crossObject;
-    [SerializeField] private GameObject noughtObject;
+    [SerializeField] private XOController crossObject;
+    [SerializeField] private XOController noughtObject;
 
-    private CellState _currentCellState;
+    private CellState _currentCellState = CellState.Empty;
     private Action<Cell> _onCellClicked;
+    private Animator _animator;
+    private static readonly int Enabled = Animator.StringToHash("enabled");
 
     private Camera _camera;
-        
+    
     public int Row { get; private set; }
     public int Col { get; private set; }
     public CellState CellState
@@ -23,53 +25,48 @@ public class Cell : MonoBehaviour
             switch (value)
             {
                 case CellState.Cross:
-                    noughtObject.SetActive(false);
                     crossObject.SetActive(true);
                     break;
                 case CellState.Nought:
                     noughtObject.SetActive(true);
-                    crossObject.SetActive(false);
                     break;
                 case CellState.Empty:
-                    noughtObject.SetActive(false);
-                    crossObject.SetActive(false);
+                    if (noughtObject.IsEnabled)
+                    {
+                        noughtObject.SetActive(false);
+                    }
+                    else if (crossObject.IsEnabled)
+                    {
+                        crossObject.SetActive(false);
+                    }
                     break;
             }
         }
     }
 
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+        _camera = Camera.main;
+    }
+
+    private void OnMouseDown()
+    {
+        _onCellClicked?.Invoke(this);
+    }
+    
     public void Initialize(int row, int col, Action<Cell> onCellClicked)
     {
         Row = row;
         Col = col;
-        CellState = CellState.Empty;
         
         name = $"Cell[{row}, {col}]";
 
         _onCellClicked = onCellClicked;
     }
-    
-    
-    private void Awake()
-    {
-        _camera = Camera.main;
-    }
-    
-    private void OnMouseDown()
-    {
-        _onCellClicked?.Invoke(this);
-    }
 
-    private void Update()
+    public void SetActive(bool value)
     {
-        if (Input.touchCount > 0)
-        {
-            var ray = Camera.allCameras[0].ScreenPointToRay(Input.GetTouch(0).position);
-            
-            if (Physics.Raycast(ray, out var hit))
-            {
-                hit.transform.gameObject.SendMessage("OnMouseDown");
-            }
-        }
+        _animator.SetBool(Enabled, value);
     }
 }
